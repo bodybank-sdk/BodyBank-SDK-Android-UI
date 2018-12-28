@@ -1,0 +1,21 @@
+<resources>
+    <string-array name="tutorial_messages">
+        <item>身長、体重、性別を入力</item>
+        <item>姿勢良く正面を向く
+            手はまっすぐで30度ほど開く
+            足は肩幅程度にして
+            枠内に入るように写真を撮る
+        </item>
+        <item>
+            姿勢良くカメラに向かって右を向く
+            手を下に延ばして、
+            体のラインからはみ出ないようにして
+            枠内に入るように写真を撮る
+        </item>
+    </string-array>
+    <array name="tutorial_images">
+        <item>@drawable/tutorial1</item>
+        <item>@drawable/tutorial2</item>
+        <item>@drawable/tutorial3</item>
+    </array>
+</resources>
