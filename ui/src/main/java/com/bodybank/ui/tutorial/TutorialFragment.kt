@@ -5,12 +5,15 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentStatePagerAdapter
+import android.support.v4.view.ViewPager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.bodybank.ui.R
 import com.bodybank.ui.misc.BaseFragment
+import com.bodybank.ui.misc.ViewPressEffectHelper
 import kotlinx.android.synthetic.main.fragment_tutorial.*
+import kotlinx.android.synthetic.main.fragment_tutorial.view.*
 
 open class TutorialFragment : BaseFragment() {
     open interface Delegate {
@@ -40,7 +43,32 @@ open class TutorialFragment : BaseFragment() {
                     }
                 }
                 pageControl.setViewPager(viewPager)
-                pageControl.setPosition(0)
+                adapter.registerDataSetObserver(pageControl.dataSetObserver)
+                ViewPressEffectHelper.attach(nextButton)
+                viewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+                    override fun onPageScrollStateChanged(p0: Int) {
+
+                    }
+
+                    override fun onPageScrolled(p0: Int, p1: Float, p2: Int) {
+
+                    }
+
+                    override fun onPageSelected(page: Int) {
+                        when (page) {
+                            2 -> {
+                                activity?.runOnUiThread {
+                                    nextButton.text = "Start"
+                                }
+                            }
+                            else -> {
+                                activity?.runOnUiThread {
+                                    nextButton.text = "Next"
+                                }
+                            }
+                        }
+                    }
+                })
             }
 
         }
@@ -55,7 +83,7 @@ open class TutorialFragment : BaseFragment() {
         init {
             messages = context.resources.getStringArray(R.array.tutorial_messages).toList()
             val typedImageArray = context.resources.obtainTypedArray(R.array.tutorial_images)
-            for (i in (0..typedImageArray.indexCount)) {
+            for (i in 0..(messages.count() - 1)) {
                 images.add(i, typedImageArray.getResourceId(i, -1))
             }
             typedImageArray.recycle()
