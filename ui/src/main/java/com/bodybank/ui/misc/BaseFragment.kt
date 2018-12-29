@@ -17,11 +17,11 @@ open class BaseFragment : Fragment() {
      * @param id          the fragment ID (can be [Fragment.getId] of
      * [Fragment.hashCode]).
      */
-    fun registerRequestCode(requestCode: Int, id: Int) {
+    open fun registerRequestCode(requestCode: Int, id: Int) {
         mRequestCodes.put(requestCode, id)
     }// registerRequestCode()
 
-    override fun startActivityForResult(intent: Intent, requestCode: Int) {
+    open override fun startActivityForResult(intent: Intent, requestCode: Int) {
         if (parentFragment is BaseFragment) {
             (parentFragment as BaseFragment).registerRequestCode(
                 requestCode, hashCode()
@@ -31,7 +31,7 @@ open class BaseFragment : Fragment() {
             super.startActivityForResult(intent, requestCode)
     }// startActivityForResult()
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    open override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (!checkNestedFragmentsForResult(requestCode, resultCode, data))
             super.onActivityResult(requestCode, resultCode, data)
     }// onActivityResult()
@@ -47,7 +47,7 @@ open class BaseFragment : Fragment() {
      * @return `true` if the results have been handed over to some child
      * fragment. `false` otherwise.
      */
-    protected fun checkNestedFragmentsForResult(
+    open protected fun checkNestedFragmentsForResult(
         requestCode: Int,
         resultCode: Int, data: Intent?
     ): Boolean {
@@ -70,22 +70,22 @@ open class BaseFragment : Fragment() {
     }// checkNestedFragmentsForResult()
 
 
-    fun getAppCompatActivity(): AppCompatActivity {
+    open fun getAppCompatActivity(): AppCompatActivity {
         return activity as AppCompatActivity
     }
 
-    protected fun setActionBarTitle(title: CharSequence) {
+    open protected fun setActionBarTitle(title: CharSequence) {
         if (isAdded) {
             getAppCompatActivity().supportActionBar!!.title = title
         }
     }
 
 
-    fun isDirectlyUnderActivity(): Boolean {
+    open fun isDirectlyUnderActivity(): Boolean {
         return parentFragment == null
     }
 
-    protected fun getCurrentFragmentManager(): FragmentManager? {
+    open protected fun getCurrentFragmentManager(): FragmentManager? {
         return if (!isDirectlyUnderActivity()) {
             parentFragment?.childFragmentManager
         } else {

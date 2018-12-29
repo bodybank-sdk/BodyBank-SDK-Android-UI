@@ -5,7 +5,7 @@ import com.bodybank.ui.R
 import kotlinx.android.synthetic.main.fragment_picker.*
 import kotlinx.android.synthetic.main.view_unit_picker.view.*
 
-class WeightPickerFramgent : BasePickerFragment() {
+class WeightPickerFragment : BasePickerFragment() {
     override var defaultValue: Double
         get() = 150.0
         set(value) {}

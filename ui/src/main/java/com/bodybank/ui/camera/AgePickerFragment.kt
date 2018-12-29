@@ -1,5 +1,7 @@
 package com.bodybank.ui.camera
 
+import kotlinx.android.synthetic.main.fragment_picker.*
+
 class AgePickerFragment : BasePickerFragment() {
 
     override var defaultValue: Double
@@ -13,4 +15,7 @@ class AgePickerFragment : BasePickerFragment() {
     override fun showUnitSelector() {
 
     }
+
+    open var age: Int = 0
+        get() = valueEditText.text.toString().toInt()
 }

@@ -8,6 +8,9 @@
             android:id="@+id/textureView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
+    <ImageView android:id="@+id/guideImageView" android:layout_width="match_parent" android:layout_height="match_parent"
+               android:padding="20dp"
+               android:scaleType="fitCenter" android:src="@drawable/front"/>
 
     <FrameLayout android:layout_width="match_parent" android:layout_height="60dip" android:id="@+id/bottomBar"
                  android:background="@android:color/transparent"
@@ -49,11 +52,13 @@
         <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
                       android:orientation="horizontal">
             <TextView android:layout_width="80dp" android:layout_height="wrap_content"
+                      android:id="@+id/heightValueLabel"
                       android:gravity="left"
                       android:textSize="20sp"
                       android:textColor="@android:color/white" android:text="150.00"/>
             <TextView android:layout_width="30dp" android:layout_height="wrap_content"
                       android:gravity="right"
+                      android:id="@+id/heightUnitLabel"
                       android:textSize="15sp"
                       android:textColor="@android:color/white" android:text="cm"/>
         </LinearLayout>
@@ -64,10 +69,12 @@
                       android:orientation="horizontal">
             <TextView android:layout_width="80dp" android:layout_height="wrap_content"
                       android:gravity="left"
+                      android:id="@+id/weightValueLabel"
                       android:textSize="20sp"
                       android:textColor="@android:color/white" android:text="50.00"/>
             <TextView android:layout_width="30dp" android:layout_height="wrap_content"
                       android:gravity="right"
+                      android:id="@+id/weightUnitLabel"
                       android:textSize="15sp"
                       android:textColor="@android:color/white" android:text="kg"/>
         </LinearLayout>
@@ -78,6 +85,7 @@
                       android:orientation="horizontal">
             <TextView android:layout_width="80dp" android:layout_height="wrap_content"
                       android:gravity="left"
+                      android:id="@+id/ageValueLabel"
                       android:textSize="20sp"
                       android:textColor="@android:color/white" android:text="25"/>
         </LinearLayout>
@@ -86,7 +94,7 @@
                   android:textColor="@android:color/white" android:text="Gender"/>
 
         <info.hoang8f.android.segmented.SegmentedGroup
-                android:id="@+id/segmentedControl"
+                android:id="@+id/genderSegmentedControl"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
@@ -112,4 +120,31 @@
                     style="@style/GenderRadioButton"/>
         </info.hoang8f.android.segmented.SegmentedGroup>
     </LinearLayout>
+
+    <ImageView android:layout_width="60dp" android:layout_height="60dp" android:scaleType="centerCrop"
+               android:layout_gravity="right|top"
+               android:layout_margin="10dp"
+               android:visibility="invisible"
+               android:id="@+id/imagePreview" android:clickable="true" android:focusable="true"
+               android:background="@drawable/rounded_rect"/>
+
+    <com.nshmura.snappyimageviewer.SnappyImageViewer
+            android:id="@+id/imageViewer"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    <FrameLayout android:id="@+id/pickerContainer" android:layout_width="match_parent"
+                 android:layout_height="match_parent" android:visibility="gone"/>
+
+    <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent"
+                 android:visibility="gone"
+                 android:id="@+id/timerContainer">
+        <TextView android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center"
+                  android:textSize="100sp"
+                  android:id="@+id/timerCountLabel"
+                  android:textColor="@color/gradient_begin"
+                  android:text="10"
+        />
+    </FrameLayout>
 </FrameLayout>
