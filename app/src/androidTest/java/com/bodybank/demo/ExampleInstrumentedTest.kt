@@ -1,4 +1,4 @@
-package com.bodybank.ui
+package com.bodybank.demo
 
 import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4

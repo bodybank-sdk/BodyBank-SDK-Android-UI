@@ -1,4 +1,4 @@
-package com.bodybank.ui
+package com.bodybank.demo
 
 import org.junit.Test
 

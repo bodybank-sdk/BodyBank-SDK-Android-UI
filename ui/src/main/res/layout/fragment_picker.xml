@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:tools="http://schemas.android.com/tools" android:orientation="vertical"
+             android:background="@android:color/transparent"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
+    <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                 android:layout_marginLeft="20dp" android:layout_marginRight="20dp"
+                 android:layout_gravity="center">
+        <ImageButton android:layout_width="40dp" android:layout_height="40dp" android:layout_gravity="right|top"
+                     android:src="@drawable/weightclose" android:background="@android:color/transparent"
+                     android:id="@+id/closeButton"
+                     android:layout_margin="10dp" tools:src="@drawable/weightclose"/>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                      android:layout_marginTop="40dp"
+                      android:orientation="vertical" android:layout_gravity="center" android:id="@+id/saveButton">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                      android:textColor="@android:color/black" android:textSize="20sp" android:text="Age"
+                      android:layout_gravity="center_horizontal" android:gravity="center" android:id="@+id/titleLabel"/>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                          android:layout_marginBottom="100dp"
+                          android:orientation="horizontal" android:weightSum="1">
+                <ImageButton android:layout_width="0dp" android:layout_height="40dp"
+                             android:layout_gravity="center_vertical"
+                             android:background="@android:color/transparent"
+                             tools:src="@drawable/weightminus"
+                             android:src="@drawable/weightminus"
+                             android:layout_weight=".15" android:id="@+id/minusButton"/>
+                <LinearLayout android:layout_width="0dp" android:layout_height="80dp" android:orientation="vertical"
+                              android:layout_weight=".7">
+                    <LinearLayout android:layout_width="match_parent"
+                                  android:layout_height="79dp" android:orientation="horizontal"
+                                  android:weightSum="1">
+                        <EditText android:layout_width="0dp" android:layout_height="match_parent"
+                                  android:layout_weight=".8"
+                                  android:background="@android:color/transparent"
+                                  android:padding="20dp"
+                                  android:textColor="@android:color/black"
+                                  android:text="150.0"
+                                  android:textSize="24sp"
+                                  android:gravity="left|center_vertical" android:id="@+id/valueEditText"/>
+                        <TextView android:layout_width="0dp" android:layout_height="match_parent"
+                                  android:layout_weight=".2" android:textColor="@android:color/black"
+                                  android:textSize="12sp"
+                                  android:gravity="left|center_vertical"
+                                  android:layout_gravity="center"
+                                  android:text="" android:id="@+id/unitLabel"/>
+                    </LinearLayout>
+                    <View android:layout_width="match_parent" android:layout_height="1dp"
+                          android:background="@android:color/darker_gray"/>
+                </LinearLayout>
+
+                <ImageButton android:layout_width="0dp" android:layout_height="40dp"
+                             android:layout_gravity="center_vertical"
+                             tools:src="@drawable/weightplus"
+                             android:background="@android:color/transparent"
+                             android:src="@drawable/weightplus"
+                             android:layout_weight=".15" android:id="@+id/plusButton"/>
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <FrameLayout android:layout_width="100dp" android:layout_height="40dp"
+                     android:background="@drawable/gradient_drawable"
+                     android:layout_gravity="center_horizontal|bottom" android:layout_margin="20dp">
+            <Button android:layout_width="match_parent" android:layout_height="match_parent" android:text="Save"
+                    android:background="@android:color/transparent"
+                    android:textColor="@android:color/white"
+                    android:textAllCaps="false"/>
+        </FrameLayout>
+    </FrameLayout>
+</FrameLayout>

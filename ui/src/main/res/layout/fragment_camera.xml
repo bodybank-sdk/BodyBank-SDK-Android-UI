@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent"
+             android:background="@android:color/black"
+             android:layout_height="match_parent">
+
+    <TextureView
+            android:id="@+id/textureView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    <FrameLayout android:layout_width="match_parent" android:layout_height="60dip" android:id="@+id/bottomBar"
+                 android:background="@android:color/transparent"
+                 android:layout_gravity="bottom">
+
+        <ImageButton android:layout_width="40dp" android:layout_height="40dp"
+                     android:layout_marginLeft="10dp"
+                     android:background="@android:color/transparent"
+                     android:id="@+id/pickImageButton" android:layout_gravity="center_vertical|left"
+                     android:scaleType="centerInside"
+                     android:src="@drawable/library"/>
+
+        <ImageButton android:layout_width="40dp" android:layout_height="40dp"
+                     android:layout_marginRight="10dp"
+                     android:background="@android:color/transparent"
+                     android:id="@+id/switchCameraButton" android:layout_gravity="center_vertical|right"
+                     android:scaleType="centerInside"
+                     android:src="@drawable/camera"/>
+
+        <ImageButton android:layout_width="40dp" android:layout_height="40dp"
+                     android:layout_marginRight="60dp"
+                     android:background="@android:color/transparent"
+                     android:id="@+id/timerButton" android:layout_gravity="center_vertical|right"
+                     android:scaleType="centerInside"
+                     android:src="@drawable/timer"/>
+
+        <ImageButton android:layout_width="60dp" android:layout_height="60dp"
+                     android:background="@android:color/transparent"
+                     android:id="@+id/captureButton" android:layout_gravity="center"
+                     android:scaleType="centerInside"
+                     android:src="@drawable/button"/>
+    </FrameLayout>
+
+    <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+                  android:orientation="vertical" android:layout_margin="10dp">
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                  android:gravity="left"
+                  android:textColor="@android:color/white" android:text="Height"/>
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+                      android:orientation="horizontal">
+            <TextView android:layout_width="80dp" android:layout_height="wrap_content"
+                      android:gravity="left"
+                      android:textSize="20sp"
+                      android:textColor="@android:color/white" android:text="150.00"/>
+            <TextView android:layout_width="30dp" android:layout_height="wrap_content"
+                      android:gravity="right"
+                      android:textSize="15sp"
+                      android:textColor="@android:color/white" android:text="cm"/>
+        </LinearLayout>
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                  android:gravity="left"
+                  android:textColor="@android:color/white" android:text="Weight"/>
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+                      android:orientation="horizontal">
+            <TextView android:layout_width="80dp" android:layout_height="wrap_content"
+                      android:gravity="left"
+                      android:textSize="20sp"
+                      android:textColor="@android:color/white" android:text="50.00"/>
+            <TextView android:layout_width="30dp" android:layout_height="wrap_content"
+                      android:gravity="right"
+                      android:textSize="15sp"
+                      android:textColor="@android:color/white" android:text="kg"/>
+        </LinearLayout>
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                  android:gravity="left"
+                  android:textColor="@android:color/white" android:text="Age"/>
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+                      android:orientation="horizontal">
+            <TextView android:layout_width="80dp" android:layout_height="wrap_content"
+                      android:gravity="left"
+                      android:textSize="20sp"
+                      android:textColor="@android:color/white" android:text="25"/>
+        </LinearLayout>
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                  android:gravity="left"
+                  android:textColor="@android:color/white" android:text="Gender"/>
+
+        <info.hoang8f.android.segmented.SegmentedGroup
+                android:id="@+id/segmentedControl"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:orientation="horizontal"
+                app:sc_tint_color="@android:color/white"
+                app:sc_border_width="1dp"
+                app:sc_checked_text_color="@android:color/black"
+                app:sc_corner_radius="3dp">
+
+            <RadioButton
+                    android:id="@+id/maleSwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="M"
+                    style="@style/GenderRadioButton"/>
+
+            <RadioButton
+                    android:id="@+id/femaleSwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="F"
+                    style="@style/GenderRadioButton"/>
+        </info.hoang8f.android.segmented.SegmentedGroup>
+    </LinearLayout>
+</FrameLayout>

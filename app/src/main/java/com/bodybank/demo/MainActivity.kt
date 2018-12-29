@@ -1,7 +1,8 @@
-package com.bodybank.ui
+package com.bodybank.demo
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import com.bodybank.ui.R
 import com.bodybank.ui.tutorial.TutorialFragment
 
 class MainActivity : AppCompatActivity() {
