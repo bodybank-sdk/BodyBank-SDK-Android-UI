@@ -1,6 +1,8 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'com.bmuschko.nexus'
 
 android {
     compileSdkVersion 28
@@ -47,4 +49,48 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 }
 
+repositories {
+    mavenCentral()
+}
 
+modifyPom {
+    project {
+        name 'BodyBank Enterprise UI SDK'
+        description 'BodyBank Enterprise UI SDK'
+        url 'https://github.com/bodybank-sdk/BodyBank-SDK-Android'
+
+        inceptionYear '2018'
+
+        scm {
+            url 'https://github.com/bodybank-sdk/BodyBank-SDK-Android-UI'
+            connection 'scm:https://github.com/bodybank-sdk/BodyBank-SDK-Android-UI.git'
+            developerConnection 'scm:git://github.com/bmuschko/gradle-nexus-plugin.git'
+        }
+
+        licenses {
+            license {
+                name 'MIT'
+                url ''
+                distribution 'repo'
+            }
+        }
+
+        developers {
+            developer {
+                id 'skonb'
+                name 'Shumpei Kobayashi'
+                email 'skonb@originalstitch.com'
+            }
+        }
+    }
+}
+
+extraArchive {
+    sources = false
+    tests = false
+    javadoc = false
+}
+
+nexus {
+    sign = true
+}
