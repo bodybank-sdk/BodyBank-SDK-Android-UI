@@ -3,14 +3,18 @@ package com.bodybank.ui.camera
 import android.app.Activity.RESULT_OK
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.Matrix
 import android.graphics.PixelFormat
+import android.graphics.PorterDuff
 import android.graphics.SurfaceTexture
 import android.hardware.*
 import android.net.Uri
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.support.v4.content.ContextCompat
+import android.support.v4.content.res.ColorStateListInflaterCompat
 import android.support.v7.app.AlertDialog
 import android.view.*
 import com.bodybank.enterprise.type.Gender
@@ -18,6 +22,7 @@ import com.bodybank.estimation.EstimationParameter
 import com.bodybank.ui.R
 import com.bodybank.ui.misc.BaseFragment
 import com.bodybank.ui.misc.ViewPressEffectHelper
+import com.facebook.drawee.backends.pipeline.Fresco
 import com.stfalcon.frescoimageviewer.ImageViewer
 import kotlinx.android.synthetic.main.fragment_camera.*
 import java.io.File
@@ -51,16 +56,18 @@ open class CameraFragment : BaseFragment(), SensorEventListener, BasePickerFragm
     open var capturingFront: Boolean = true
         set(value) {
             field = value
-            if (value) {
-                imagePreview.visibility = View.INVISIBLE
-                estimationParameter.frontImagePath = null
-                guideImageView.setImageResource(R.drawable.front)
-                imagePreview.setImageURI(null)
-            } else {
-                imagePreview.visibility = View.VISIBLE
-                estimationParameter.sideImagePath = null
-                guideImageView.setImageResource(R.drawable.side)
-                imagePreview.setImageURI(Uri.fromFile(File(estimationParameter.frontImagePath)))
+            view?.post {
+                if (value) {
+                    imagePreview.visibility = View.INVISIBLE
+                    estimationParameter.frontImagePath = null
+                    guideImageView.setImageResource(R.drawable.front)
+                    imagePreview.setImageURI(null)
+                } else {
+                    imagePreview.visibility = View.VISIBLE
+                    estimationParameter.sideImagePath = null
+                    guideImageView.setImageResource(R.drawable.side)
+                    imagePreview.setImageURI(Uri.fromFile(File(estimationParameter.frontImagePath)))
+                }
             }
         }
     open var isParameterAllInput: Boolean = false
@@ -85,7 +92,7 @@ open class CameraFragment : BaseFragment(), SensorEventListener, BasePickerFragm
     var cameraFacing: Int = Camera.CameraInfo.CAMERA_FACING_BACK
     var cameraOrientation: Int = 0
 
-    var currentPickerFramgnet: BasePickerFragment? = null
+    var currentPickerFragment: BasePickerFragment? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_camera, container, false)
@@ -93,6 +100,9 @@ open class CameraFragment : BaseFragment(), SensorEventListener, BasePickerFragm
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        if (!Fresco.hasBeenInitialized()) {
+            Fresco.initialize(activity!!.applicationContext)
+        }
         sensorManager = activity?.getSystemService(Context.SENSOR_SERVICE) as SensorManager
         rotationSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
         if (rotationSensor == null) {
@@ -116,7 +126,7 @@ open class CameraFragment : BaseFragment(), SensorEventListener, BasePickerFragm
             switchCameraButton?.isEnabled = false
         }
         imagePreview?.setOnClickListener {
-            ImageViewer.Builder(context, listOf(estimationParameter.frontImagePath!!)).show()
+            ImageViewer.Builder(context, listOf(Uri.fromFile(File(estimationParameter.frontImagePath)))).show()
         }
         timerContainer.setOnClickListener { }
         pickerContainer.setOnClickListener { }
@@ -141,17 +151,35 @@ open class CameraFragment : BaseFragment(), SensorEventListener, BasePickerFragm
             timerButton,
             pickImageButton,
             captureButton,
-            switchCameraButton
+            switchCameraButton,
+            imagePreview
         ).forEach { view ->
             view?.let {
                 ViewPressEffectHelper.attach(it)
             }
         }
+
+        verticalSeekbar.progressDrawable.setColorFilter(
+            ContextCompat.getColor(context!!, R.color.gray),
+            PorterDuff.Mode.SRC_ATOP
+        )
     }
 
     override fun onResume() {
         super.onResume()
         initializeViewComponents()
+        listOf(rotationSensor, gravitySensor, accelerometer, magnetometer).forEach { sensor ->
+            sensor?.let {
+                sensorManager?.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
+
+            }
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        stopPreview()
+        sensorManager?.unregisterListener(this)
     }
 
     fun initializeViewComponents() {
@@ -159,9 +187,16 @@ open class CameraFragment : BaseFragment(), SensorEventListener, BasePickerFragm
         textureView?.surfaceTextureListener = SurfaceCallback()
     }
 
+    fun stopPreview() {
+        camera?.stopPreview()
+        camera?.release()
+        camera = null
+    }
+
 
     override fun onSensorChanged(event: SensorEvent) {
         // It is good practice to check that we received the proper sensor event
+        var capturable = true
         if (event.sensor.type == Sensor.TYPE_ROTATION_VECTOR) {
             // Convert the rotation-vector to a 4x4 matrix.
             SensorManager.getRotationMatrixFromVector(
@@ -240,14 +275,55 @@ open class CameraFragment : BaseFragment(), SensorEventListener, BasePickerFragm
                 )
 
             SensorManager.getOrientation(mRotationMatrix, orientationVals)
-
-            // Optionally convert the result from radians to degrees
             orientationVals[0] = Math.toDegrees(orientationVals[0].toDouble()).toFloat()
             orientationVals[1] = Math.toDegrees(orientationVals[1].toDouble()).toFloat()
             orientationVals[2] = Math.toDegrees(orientationVals[2].toDouble()).toFloat()
         } else {
+            orientationVals[1] =
+                    Math.toDegrees(
+                        Math.atan2(
+                            -gravity[0],
+                            Math.sqrt(gravity[1] * gravity[1] + gravity[2] * gravity[2])
+                        )
+                    ).toFloat()
             orientationVals[2] = Math.toDegrees(Math.atan2(gravity[1], gravity[2])).toFloat()
         }
+        if (rotationCalculationType == RotationCalculationType.Unavailable) {
+            horizontalAngleIndicator.visibility = View.GONE
+            verticalSeekbar.visibility = View.GONE
+            capturable = true
+        } else {
+            horizontalAngleIndicator.rotation = -orientationVals[2]
+            if (Math.abs(orientationVals[2]) < 3) {
+                capturable = capturable && true
+                horizontalAngleIndicator.setBackgroundColor(
+                    ContextCompat.getColor(
+                        context!!,
+                        R.color.gradient_begin
+                    )
+                )
+            } else {
+                capturable = false
+                horizontalAngleIndicator.setBackgroundColor(ContextCompat.getColor(context!!, R.color.gray))
+            }
+            val scaledPitch = (orientationVals[1] + 90.0) / 90.0 * 50.0
+            verticalSeekbar.progress = scaledPitch.toInt()
+            if (Math.abs(orientationVals[1]) < 3.0) {
+                capturable = capturable && true
+                verticalSeekbar.thumb.setColorFilter(
+                    ContextCompat.getColor(context!!, R.color.gradient_begin),
+                    PorterDuff.Mode.SRC_ATOP
+                )
+            } else {
+                capturable = false
+                verticalSeekbar.thumb.setColorFilter(
+                    ContextCompat.getColor(context!!, R.color.gray),
+                    PorterDuff.Mode.SRC_ATOP
+                )
+            }
+
+        }
+        captureButton?.isEnabled = capturable
     }
 
     private val MAX_SAMPLE_SIZE = 5
@@ -375,7 +451,6 @@ open class CameraFragment : BaseFragment(), SensorEventListener, BasePickerFragm
 
             }
         }
-
     }
 
 
@@ -476,6 +551,10 @@ open class CameraFragment : BaseFragment(), SensorEventListener, BasePickerFragm
                     estimationParameter.sideImagePath = it.getFileStreamPath(fileName).path
                     delegate?.onFinishCameraFragment(this)
                 }
+                view?.postDelayed({
+                    takingPicture = false
+                    camera?.startPreview()
+                }, 1000)
             }
         })
     }
@@ -529,7 +608,7 @@ open class CameraFragment : BaseFragment(), SensorEventListener, BasePickerFragm
             android.R.anim.fade_out
         ).addToBackStack("pick").commit()
         fragment.delegate = this
-        currentPickerFramgnet = fragment
+        currentPickerFragment = fragment
     }
 
     fun showHeightPicker() {
@@ -586,13 +665,13 @@ open class CameraFragment : BaseFragment(), SensorEventListener, BasePickerFragm
     }
 
     fun removePickerFragment() {
-        currentPickerFramgnet?.let {
+        currentPickerFragment?.let {
             childFragmentManager.popBackStack()
         }
         pickerContainer?.postDelayed({
             pickerContainer?.visibility = View.GONE
         }, 500)
-        currentPickerFramgnet = null
+        currentPickerFragment = null
     }
 
     override fun onCancelPickerFragment(fragment: BasePickerFragment) {
@@ -632,6 +711,25 @@ open class CameraFragment : BaseFragment(), SensorEventListener, BasePickerFragm
                 timerCountLabel.text = String.format("%d", (count - p0) / 1000)
             }
         }
+    }
+
+    fun cleanup() {
+        estimationParameter.frontImagePath?.let {
+            File(it).delete()
+        }
+        estimationParameter.sideImagePath?.let {
+            File(it).delete()
+        }
+    }
+
+    fun reset() {
+        cleanup()
+        heightValueLabel.text = "-"
+        weightValueLabel.text = "-"
+        ageValueLabel.text = "-"
+        maleSwitch.isChecked = true
+        capturingFront = true
+        estimationParameter.clear()
     }
 }
 

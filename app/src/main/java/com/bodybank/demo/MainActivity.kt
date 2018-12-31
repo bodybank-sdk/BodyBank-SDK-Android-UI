@@ -8,9 +8,11 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
+import com.bodybank.core.BodyBankEnterprise
 import com.bodybank.ui.camera.CameraFragment
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), CameraFragment.Delegate {
 
     companion object {
         val PERMISSION_REQUEST_CAMERA = 111
@@ -26,10 +28,10 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         supportActionBar?.hide()
-        supportFragmentManager?.beginTransaction()?.replace(R.id.fragmentContainer, CameraFragment())
-            ?.commit()
+        val fragment = CameraFragment()
+        fragment.delegate = this
         checkPermission {
-            supportFragmentManager?.beginTransaction()?.replace(R.id.fragmentContainer, CameraFragment())
+            supportFragmentManager?.beginTransaction()?.replace(R.id.fragmentContainer, fragment)
                 ?.commit()
 
         }
@@ -98,5 +100,26 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    override fun onFinishCameraFragment(fragment: CameraFragment) {
+        val param = fragment.estimationParameter
+        param.failOnAutomaticEstimationFailure = true
+        BodyBankEnterprise.createEstimationRequest(param) { request, errors ->
+            errors?.let {
+                runOnUiThread {
+                    AlertDialog.Builder(this).setMessage(it.map { it.message }.joinToString("\n"))
+                        .setPositiveButton("OK") { _, _ -> }.show()
+
+                }
+            } ?: {
+                Log.i("testing", request?.id)
+                fragment.reset()
+            }()
+        }
+    }
+
+    override fun onCancelCameraFragment(fragment: CameraFragment) {
+
     }
 }

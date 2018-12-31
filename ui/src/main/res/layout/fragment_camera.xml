@@ -132,7 +132,7 @@
                android:id="@+id/imagePreview" android:clickable="true" android:focusable="true"
                android:background="@drawable/rounded_rect"/>
 
-    <View android:layout_width="120dp" android:layout_height="5dp" android:background="@color/gradient_begin"
+    <View android:layout_width="120dp" android:layout_height="5dp" android:background="@color/gradient_begin" android:id="@+id/horizontalAngleIndicator"
           android:layout_gravity="center"/>
 
     <com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper
