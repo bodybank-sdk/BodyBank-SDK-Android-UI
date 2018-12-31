@@ -12,15 +12,24 @@ import android.hardware.*
 import android.net.Uri
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.support.v7.app.AlertDialog
 import android.view.*
+import com.bodybank.enterprise.type.Gender
 import com.bodybank.estimation.EstimationParameter
 import com.bodybank.ui.R
 import com.bodybank.ui.misc.BaseFragment
 import kotlinx.android.synthetic.main.fragment_camera.*
 import java.io.File
 import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.*
 
-class CameraFragment : BaseFragment(), SensorEventListener, BasePickerFragment.Delegate {
+open class CameraFragment : BaseFragment(), SensorEventListener, BasePickerFragment.Delegate {
+
+    public interface Delegate {
+        fun onCancelCameraFragment(fragment: CameraFragment)
+        fun onFinishCameraFragment(fragment: CameraFragment)
+    }
 
     companion object {
         val REQUEST_CODE_PICK_PHOTO = 100
@@ -32,6 +41,9 @@ class CameraFragment : BaseFragment(), SensorEventListener, BasePickerFragment.D
     private var rotationSensor: Sensor? = null
     private var gravitySensor: Sensor? = null
     private val mRotationMatrix = FloatArray(16)
+    var takingPicture = false
+    var dateFormat = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss")
+    var delegate: Delegate? = null
 
     open var estimationParameter: EstimationParameter = EstimationParameter()
 
@@ -50,6 +62,8 @@ class CameraFragment : BaseFragment(), SensorEventListener, BasePickerFragment.D
                 imagePreview.setImageURI(Uri.fromFile(File(estimationParameter.frontImagePath)))
             }
         }
+    open var isParameterAllInput: Boolean = false
+        get() = estimationParameter.age > 0 && estimationParameter.heightInCm > 0 && estimationParameter.weightInKg > 0
 
     internal enum class RotationCalculationType {
         RotationVector, GravityCompass, AccelerometerCompass, Unavailable
@@ -105,6 +119,17 @@ class CameraFragment : BaseFragment(), SensorEventListener, BasePickerFragment.D
         }
         timerContainer.setOnClickListener { }
         pickerContainer.setOnClickListener { }
+        heightValueLabel?.setOnClickListener { showHeightPicker() }
+        weightValueLabel?.setOnClickListener { showWeightPicker() }
+        ageValueLabel?.setOnClickListener { showAgePicker() }
+        genderSegmentedControl?.setOnCheckedChangeListener { group, index ->
+            if (index == 0) {
+                estimationParameter.gender = Gender.male
+            } else {
+                estimationParameter.gender = Gender.female
+            }
+        }
+        captureButton?.setOnClickListener { }
     }
 
     override fun onResume() {
@@ -251,12 +276,31 @@ class CameraFragment : BaseFragment(), SensorEventListener, BasePickerFragment.D
         return zAngle
     }
 
+    fun tempImageFileName() = "bodybank-image-cache" + dateFormat.format(Date()) + ".jpg"
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         try {
             if (resultCode == RESULT_OK) {
                 if (requestCode == REQUEST_CODE_PICK_PHOTO && null != data) {
-                    val uri = data.data
+                    data.data?.let { uri ->
+                        context?.let { context ->
+                            val fileName = tempImageFileName()
+                            context.openFileOutput(fileName, Context.MODE_PRIVATE)?.let { output ->
+                                context.contentResolver?.openInputStream(uri)?.let { input ->
+                                    input.copyTo(output)
+                                }
+                                if (capturingFront) {
+                                    estimationParameter.frontImagePath = context.getFileStreamPath(fileName).path
+                                    capturingFront = false
+                                } else {
+                                    estimationParameter.sideImagePath = context.getFileStreamPath(fileName).path
+                                    delegate?.onFinishCameraFragment(this)
+                                }
+                            }
+
+                        }
+                    }
 //TODO implement
                 }
             }
@@ -399,12 +443,25 @@ class CameraFragment : BaseFragment(), SensorEventListener, BasePickerFragment.D
     }
 
     fun takePicture() {
+        takingPicture = true
         camera?.takePicture({
 
-        }, { byteArray, camera ->
+        }, { byteArray, _ ->
 
-        }, { byteArray, camera ->
-            //TODO save jpeg to local
+        }, { byteArray, _ ->
+            val fileName = tempImageFileName()
+            context?.let {
+                it.openFileOutput(fileName, Context.MODE_PRIVATE)?.use {
+                    it.write(byteArray)
+                }
+                if (capturingFront) {
+                    estimationParameter.frontImagePath = it.getFileStreamPath(fileName).path
+                    capturingFront = false
+                } else {
+                    estimationParameter.sideImagePath = it.getFileStreamPath(fileName).path
+                    delegate?.onFinishCameraFragment(this)
+                }
+            }
         })
     }
 
@@ -454,6 +511,25 @@ class CameraFragment : BaseFragment(), SensorEventListener, BasePickerFragment.D
         fragment.delegate = this
         currentPickerFramgnet = fragment
     }
+
+    fun onClickCaptureButton() {
+
+        if (isParameterAllInput) {
+            if (takingPicture) {
+                return
+            }
+            takePicture()
+        } else {
+
+            activity?.let {
+                it.runOnUiThread {
+                    AlertDialog.Builder(it).setMessage("Input height, weight, age and gender.")
+                        .setPositiveButton("OK", { _, _ -> }).show()
+                }
+            }
+        }
+    }
+
 
     override fun onFinishPickerFragment(fragment: BasePickerFragment) {
         if (fragment is HeightPickerFramgent) {

@@ -2,4 +2,5 @@
 <resources>
     <color name="gradient_begin">#6d59b3</color>
     <color name="gradient_end">#314775</color>
+    <color name="gray">#CCCCCC</color>
 </resources>

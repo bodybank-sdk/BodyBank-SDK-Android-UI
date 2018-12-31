@@ -32,3 +32,5 @@ proguard/
 
 # Mac files
 .DS_Store
+
+/app/src/main/res/raw/bodybank_config.json

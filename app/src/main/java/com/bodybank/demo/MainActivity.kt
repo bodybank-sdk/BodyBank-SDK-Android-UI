@@ -2,8 +2,7 @@ package com.bodybank.demo
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import com.bodybank.ui.R
-import com.bodybank.ui.tutorial.TutorialFragment
+import com.bodybank.ui.history.EstimationHistoryListFragment
 
 class MainActivity : AppCompatActivity() {
 
@@ -15,6 +14,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         supportActionBar?.hide()
-        supportFragmentManager?.beginTransaction()?.replace(R.id.fragmentContainer, TutorialFragment())?.commit()
+        supportFragmentManager?.beginTransaction()?.replace(R.id.fragmentContainer, EstimationHistoryListFragment())
+            ?.commit()
     }
 }
