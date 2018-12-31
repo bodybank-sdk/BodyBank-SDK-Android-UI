@@ -18,6 +18,7 @@ import com.bodybank.enterprise.type.Gender
 import com.bodybank.estimation.EstimationParameter
 import com.bodybank.ui.R
 import com.bodybank.ui.misc.BaseFragment
+import com.stfalcon.frescoimageviewer.ImageViewer
 import kotlinx.android.synthetic.main.fragment_camera.*
 import java.io.File
 import java.io.IOException
@@ -115,7 +116,7 @@ open class CameraFragment : BaseFragment(), SensorEventListener, BasePickerFragm
             switchCameraButton?.isEnabled = false
         }
         imagePreview?.setOnClickListener {
-            imageViewer?.visibility = View.VISIBLE
+            ImageViewer.Builder(context, listOf(estimationParameter.frontImagePath!!)).show()
         }
         timerContainer.setOnClickListener { }
         pickerContainer.setOnClickListener { }
@@ -301,7 +302,6 @@ open class CameraFragment : BaseFragment(), SensorEventListener, BasePickerFragm
 
                         }
                     }
-//TODO implement
                 }
             }
         } catch (e: Exception) {

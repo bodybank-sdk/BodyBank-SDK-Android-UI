@@ -17,4 +17,12 @@ class MainActivity : AppCompatActivity() {
         supportFragmentManager?.beginTransaction()?.replace(R.id.fragmentContainer, EstimationHistoryListFragment())
             ?.commit()
     }
+
+    override fun onBackPressed() {
+        if (supportFragmentManager?.backStackEntryCount ?: 0 > 0) {
+            supportFragmentManager?.popBackStack()
+        } else {
+            super.onBackPressed()
+        }
+    }
 }

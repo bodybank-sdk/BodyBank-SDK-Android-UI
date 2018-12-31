@@ -1,6 +1,7 @@
 package com.bodybank.ui.history
 
 import android.content.Context
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.util.AttributeSet
 import android.view.LayoutInflater
@@ -8,10 +9,12 @@ import android.view.View
 import android.widget.FrameLayout
 import com.bodybank.estimation.EstimationRequest
 import com.bodybank.ui.R
-import com.squareup.picasso.Callback
-import com.squareup.picasso.Picasso
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import kotlinx.android.synthetic.main.view_history_list_cell.view.*
-import java.lang.Exception
 import java.text.SimpleDateFormat
 
 open class EstimationHistoryListCell : FrameLayout {
@@ -40,16 +43,29 @@ open class EstimationHistoryListCell : FrameLayout {
                     Uri.parse(it)?.let {
                         post {
                             spinKit.visibility = View.VISIBLE
-                            Picasso.get().load(it)?.into(imageView, object : Callback {
-                                override fun onSuccess() {
+                            Glide.with(this).load(it).addListener(object : RequestListener<Drawable> {
+                                override fun onLoadFailed(
+                                    e: GlideException?,
+                                    model: Any?,
+                                    target: Target<Drawable>?,
+                                    isFirstResource: Boolean
+                                ): Boolean {
                                     spinKit.visibility = View.GONE
+                                    return true
                                 }
 
-                                override fun onError(e: Exception?) {
-
+                                override fun onResourceReady(
+                                    resource: Drawable?,
+                                    model: Any?,
+                                    target: Target<Drawable>?,
+                                    dataSource: DataSource?,
+                                    isFirstResource: Boolean
+                                ): Boolean {
+                                    imageView.setImageDrawable(resource)
                                     spinKit.visibility = View.GONE
+                                    return true
                                 }
-                            })
+                            }).into(imageView)
                         }
                     }
                 } ?: {

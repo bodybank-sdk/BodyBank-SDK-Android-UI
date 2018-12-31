@@ -54,7 +54,6 @@ class EstimationHistoryListFragment : BaseFragment() {
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-
             val cell = LayoutInflater.from(getAppCompatActivity()).inflate(
                 R.layout.sample_history_list_cell,
                 parent,
@@ -130,11 +129,30 @@ class EstimationHistoryListFragment : BaseFragment() {
         override fun onClick(view: View) {
             val cell = view as EstimationHistoryListCell
             cell.request?.let {
-                val detailFragment = EstimationHistoryDetailFragment()
-                fragmentManager?.beginTransaction()?.add(detailFragment, "detail")?.commit()
+                BodyBankEnterprise.getEstimationRequest(it.id!!) { request, errors ->
+                    errors?.let {
+                        activity?.runOnUiThread {
+                            AlertDialog.Builder(activity!!)
+                                .setMessage(errors.map { error -> error.message }.joinToString("\n"))
+                                .setPositiveButton("OK") { _, _ ->
+                                }.show()
+                        }
+                    } ?: {
+                        (view.parent as? ViewGroup)?.id?.let {
+                            activity?.runOnUiThread {
+                                val detailFragment = EstimationHistoryDetailFragment()
+                                detailFragment.request = request
+                                fragmentManager?.beginTransaction()?.replace(id, detailFragment)
+                                    ?.addToBackStack("detail")
+                                    ?.commit()
+                            }
+                        }
+                    }()
+                }
             }
         }
 
 
     }
+
 }

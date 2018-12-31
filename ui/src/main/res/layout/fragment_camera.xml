@@ -147,11 +147,6 @@
                 app:seekBarRotation="CW90"/> <!-- Rotation: CW90 or CW270 -->
     </com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper>
 
-    <com.nshmura.snappyimageviewer.SnappyImageViewer
-            android:id="@+id/imageViewer"
-            android:visibility="gone"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
 
     <FrameLayout android:id="@+id/pickerContainer" android:layout_width="match_parent"
                  android:layout_height="match_parent" android:visibility="gone"/>
