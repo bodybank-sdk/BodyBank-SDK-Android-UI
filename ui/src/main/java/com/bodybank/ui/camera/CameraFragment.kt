@@ -1,7 +1,6 @@
 package com.bodybank.ui.camera
 
 import android.app.Activity.RESULT_OK
-import android.content.ComponentCallbacks2
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
@@ -18,6 +17,7 @@ import com.bodybank.enterprise.type.Gender
 import com.bodybank.estimation.EstimationParameter
 import com.bodybank.ui.R
 import com.bodybank.ui.misc.BaseFragment
+import com.bodybank.ui.misc.ViewPressEffectHelper
 import com.stfalcon.frescoimageviewer.ImageViewer
 import kotlinx.android.synthetic.main.fragment_camera.*
 import java.io.File
@@ -123,6 +123,9 @@ open class CameraFragment : BaseFragment(), SensorEventListener, BasePickerFragm
         heightValueLabel?.setOnClickListener { showHeightPicker() }
         weightValueLabel?.setOnClickListener { showWeightPicker() }
         ageValueLabel?.setOnClickListener { showAgePicker() }
+        timerButton?.setOnClickListener { onClickTimerButton() }
+        switchCameraButton?.setOnClickListener { switchCamera() }
+        pickImageButton?.setOnClickListener { onPickImageButtonClick() }
         genderSegmentedControl?.setOnCheckedChangeListener { group, index ->
             if (index == 0) {
                 estimationParameter.gender = Gender.male
@@ -130,7 +133,20 @@ open class CameraFragment : BaseFragment(), SensorEventListener, BasePickerFragm
                 estimationParameter.gender = Gender.female
             }
         }
-        captureButton?.setOnClickListener { }
+        captureButton?.setOnClickListener { onClickCaptureButton() }
+        listOf<View?>(
+            heightValueLabel,
+            weightValueLabel,
+            ageValueLabel,
+            timerButton,
+            pickImageButton,
+            captureButton,
+            switchCameraButton
+        ).forEach { view ->
+            view?.let {
+                ViewPressEffectHelper.attach(it)
+            }
+        }
     }
 
     override fun onResume() {
@@ -140,7 +156,6 @@ open class CameraFragment : BaseFragment(), SensorEventListener, BasePickerFragm
 
     fun initializeViewComponents() {
         textureView?.keepScreenOn = true
-        textureView?.setBackgroundColor(ComponentCallbacks2.TRIM_MEMORY_BACKGROUND)
         textureView?.surfaceTextureListener = SurfaceCallback()
     }
 
@@ -473,6 +488,7 @@ open class CameraFragment : BaseFragment(), SensorEventListener, BasePickerFragm
         }
         camera?.stopPreview()
         camera?.release()
+        camera = null
         if (textureView.isAvailable) {
             openCamera()
             camera?.setPreviewTexture(textureView.surfaceTexture)
@@ -488,28 +504,50 @@ open class CameraFragment : BaseFragment(), SensorEventListener, BasePickerFragm
         startActivityForResult(intent, REQUEST_CODE_PICK_PHOTO)
     }
 
-    fun showHeightPicker() {
+    fun onPickImageButtonClick() {
+        if (isParameterAllInput) {
+            if (takingPicture) {
+                return
+            }
+            pickImage()
+        } else {
+            activity?.let {
+                it.runOnUiThread {
+                    AlertDialog.Builder(it).setMessage("Input height, weight, age and gender.")
+                        .setPositiveButton("OK", { _, _ -> }).show()
+                }
+            }
+        }
+    }
+
+    fun showPicker(fragment: BasePickerFragment) {
         pickerContainer.visibility = View.VISIBLE
-        val fragment = HeightPickerFramgent()
-        childFragmentManager.beginTransaction().replace(R.id.pickerContainer, fragment).commit()
+        childFragmentManager.beginTransaction().replace(R.id.pickerContainer, fragment).setCustomAnimations(
+            android.R.anim.fade_in,
+            android.R.anim.fade_out,
+            android.R.anim.fade_in,
+            android.R.anim.fade_out
+        ).addToBackStack("pick").commit()
         fragment.delegate = this
         currentPickerFramgnet = fragment
+    }
+
+    fun showHeightPicker() {
+        val framgent = HeightPickerFramgent()
+        framgent.setInitialValue(heightValueLabel!!.text.toString(), heightUnitLabel!!.text.toString())
+        showPicker(framgent)
     }
 
     fun showWeightPicker() {
-        pickerContainer.visibility = View.VISIBLE
-        val fragment = HeightPickerFramgent()
-        childFragmentManager.beginTransaction().replace(R.id.pickerContainer, fragment).commit()
-        fragment.delegate = this
-        currentPickerFramgnet = fragment
+        val framgent = WeightPickerFragment()
+        framgent.setInitialValue(weightValueLabel!!.text.toString(), weightUnitLabel!!.text.toString())
+        showPicker(framgent)
     }
 
     fun showAgePicker() {
-        pickerContainer.visibility = View.VISIBLE
-        val fragment = HeightPickerFramgent()
-        childFragmentManager.beginTransaction().replace(R.id.pickerContainer, fragment).commit()
-        fragment.delegate = this
-        currentPickerFramgnet = fragment
+        val framgent = AgePickerFragment()
+        framgent.setInitialValue(ageValueLabel!!.text.toString(), "")
+        showPicker(framgent)
     }
 
     fun onClickCaptureButton() {
@@ -549,13 +587,32 @@ open class CameraFragment : BaseFragment(), SensorEventListener, BasePickerFragm
 
     fun removePickerFragment() {
         currentPickerFramgnet?.let {
-            childFragmentManager.beginTransaction().remove(it).commit()
+            childFragmentManager.popBackStack()
         }
+        pickerContainer?.postDelayed({
+            pickerContainer?.visibility = View.GONE
+        }, 500)
         currentPickerFramgnet = null
     }
 
     override fun onCancelPickerFragment(fragment: BasePickerFragment) {
         removePickerFragment()
+    }
+
+    fun onClickTimerButton() {
+        if (isParameterAllInput) {
+            if (takingPicture) {
+                return
+            }
+            beginTimerCount()
+        } else {
+            activity?.let {
+                it.runOnUiThread {
+                    AlertDialog.Builder(it).setMessage("Input height, weight, age and gender.")
+                        .setPositiveButton("OK", { _, _ -> }).show()
+                }
+            }
+        }
     }
 
     fun beginTimerCount() {
@@ -567,6 +624,7 @@ open class CameraFragment : BaseFragment(), SensorEventListener, BasePickerFragm
     inner class PhotoTimer(val count: Long) : CountDownTimer(count, 1000) {
         override fun onFinish() {
             takePicture()
+            timerContainer?.visibility = View.GONE
         }
 
         override fun onTick(p0: Long) {

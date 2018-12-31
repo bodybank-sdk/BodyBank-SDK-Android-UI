@@ -1,12 +1,17 @@
 package com.bodybank.ui.camera
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
+import android.text.method.DigitsKeyListener
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.bodybank.ui.R
 import com.bodybank.ui.misc.BaseFragment
+import com.bodybank.ui.misc.ViewPressEffectHelper
 import kotlinx.android.synthetic.main.fragment_picker.*
+import java.lang.Exception
 
 public abstract class BasePickerFragment : BaseFragment() {
 
@@ -23,9 +28,13 @@ public abstract class BasePickerFragment : BaseFragment() {
     open var currentValue: Double = 0.0
         get() {
             return valueEditText.text?.let {
-                return if (it.toString().toDouble() != 0.0) {
-                    it.toString().toDouble()
-                } else {
+                return try {
+                    if (it.toString().toDouble() != 0.0) {
+                        it.toString().toDouble()
+                    } else {
+                        defaultValue
+                    }
+                } catch (e: Exception) {
                     defaultValue
                 }
             } ?: {
@@ -51,6 +60,29 @@ public abstract class BasePickerFragment : BaseFragment() {
         closeButton?.setOnClickListener { onClickCloseButton() }
         plusButton?.setOnClickListener { onClickPlusButton() }
         minusButton?.setOnClickListener { onClickMinusButton() }
+
+        listOf<View?>(saveButton, closeButton, plusButton, minusButton).forEach { view ->
+            view?.let {
+                ViewPressEffectHelper.attach(it)
+            }
+        }
+        valueEditText?.setOnFocusChangeListener { view, b ->
+            inflateDefaultValue()
+        }
+        valueEditText?.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(p0: Editable?) {
+
+            }
+
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+            }
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                inflateDefaultValue()
+            }
+        })
+        valueEditText.keyListener = DigitsKeyListener.getInstance("0123456789.")
     }
 
     abstract fun showUnitSelector()

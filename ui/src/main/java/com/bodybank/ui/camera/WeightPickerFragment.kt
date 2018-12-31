@@ -1,13 +1,15 @@
 package com.bodybank.ui.camera
 
+import android.os.Bundle
 import android.support.design.widget.BottomSheetDialog
+import android.view.View
 import com.bodybank.ui.R
 import kotlinx.android.synthetic.main.fragment_picker.*
 import kotlinx.android.synthetic.main.view_unit_picker.view.*
 
 class WeightPickerFragment : BasePickerFragment() {
     override var defaultValue: Double
-        get() = 150.0
+        get() = 50.0
         set(value) {}
 
     open var isPound: Boolean
@@ -17,6 +19,11 @@ class WeightPickerFragment : BasePickerFragment() {
         } else {
             unit = "kg"
         }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        titleLabel?.text = "Weight"
+    }
 
     open var weightInKg: Double = 0.0
         get() =

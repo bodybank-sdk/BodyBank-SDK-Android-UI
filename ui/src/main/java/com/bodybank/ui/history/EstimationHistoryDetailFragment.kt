@@ -140,12 +140,8 @@ open class EstimationHistoryDetailFragment : BaseFragment() {
                         (cell as? EstimationHistoryDetailEntryCell)?.let {
                             val entry = entries[position - 1]
                             it.name = entry.name
-                            (entry.value as? Double)?.let { value ->
+                            entry.value?.let { value ->
                                 it.setValueAndUnit(value, entry.unit)
-                            }
-                            (entry.value as? Int)?.let { value ->
-                                it.setValueAndUnit(value, entry.unit)
-
                             }
                             val layoutParams = it.layoutParams
                             layoutParams.height = context!!.dipToPixels(50f).toInt()

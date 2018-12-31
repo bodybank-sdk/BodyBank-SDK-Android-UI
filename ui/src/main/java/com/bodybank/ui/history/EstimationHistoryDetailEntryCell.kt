@@ -28,15 +28,15 @@ class EstimationHistoryDetailEntryCell : FrameLayout {
             }
         }
 
-    fun setValueAndUnit(value: Double, unit: String?) {
+    fun setValueAndUnit(value: Any, unit: String?) {
         post {
-            valueLabel.text = String.format("%.1f%s", value, unit ?: "")
-        }
-    }
-
-    fun setValueAndUnit(value: Int, unit: String?) {
-        post {
-            valueLabel.text = String.format("%d%s", value, unit ?: "")
+            if (value is Double) {
+                valueLabel.text = String.format("%.1f%s", value, unit ?: "")
+            } else if (value is Int) {
+                valueLabel.text = String.format("%d%s", value, unit ?: "")
+            } else if (value is String) {
+                valueLabel.text = String.format("%s%s", value, unit ?: "")
+            }
         }
     }
 

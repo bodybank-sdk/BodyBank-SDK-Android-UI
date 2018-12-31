@@ -1,6 +1,8 @@
 package com.bodybank.ui.camera
 
+import android.os.Bundle
 import android.support.design.widget.BottomSheetDialog
+import android.view.View
 import com.bodybank.ui.R
 import kotlinx.android.synthetic.main.fragment_picker.*
 import kotlinx.android.synthetic.main.view_unit_picker.view.*
@@ -17,6 +19,11 @@ class HeightPickerFramgent : BasePickerFragment() {
         } else {
             unit = "cm"
         }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        titleLabel?.text = "Height"
+    }
 
     open var heightInCm: Double = 0.0
         get() = if (isFeet) {
